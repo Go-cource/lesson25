@@ -51,6 +51,24 @@ func selectAllAgents(db *sql.DB) []Agent {
 	}
 	return agents
 }
+func selectAllTasks(db *sql.DB) []Task {
+	rows, err := db.Query("SELECT * FROM tasks")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+	tasks := []Task{}
+	for rows.Next() {
+		t := Task{}
+		err := rows.Scan(&t.Id, &t.AgentName, &t.TaskCreationTime, &t.Text, &t.Result, &t.ResultTime)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		tasks = append(tasks, t)
+	}
+	return tasks
+}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -65,7 +83,16 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
-
+	if r.Method == "GET" {
+		db := dbConnect()
+		defer db.Close()
+		tasks := selectAllTasks(db)
+		tmpl, err := template.ParseFiles("templates/tasks.html")
+		if err != nil {
+			fmt.Println(err)
+		}
+		tmpl.Execute(w, tasks)
+	}
 }
 func createTaskHandler(w http.ResponseWriter, r *http.Request) {
 
