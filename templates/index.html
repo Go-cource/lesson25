@@ -68,7 +68,6 @@
     </style>
 </head>
 <body>
-
     <header class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Client-server Golang Project (Index)</a>
@@ -100,12 +99,12 @@
             </thead>
             <tbody>
                 {{ range . }}
-                    <tr></tr>
-                        <td>{{.AgentId}}</td>
-                        <td>{{.AgentName}}</td>
-                        <td>{{.AgentLastTimeMessage}}</td>
+                    <tr>
+                        <td>{{.Id}}</td>
+                        <td>{{.Name}}</td>
+                        <td>{{.LastTimeOnline}}</td>
                     </tr>
-                {{ end }} 
+                {{ end }}
             </tbody>
         </table>
     </div>

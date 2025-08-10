@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"text/template"
 
 	_ "modernc.org/sqlite"
 )
@@ -56,7 +57,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		db := dbConnect()
 		defer db.Close()
 		agents := selectAllAgents(db)
-
+		tmpl, err := template.ParseFiles("templates/index.html")
+		if err != nil {
+			fmt.Println(err)
+		}
+		tmpl.Execute(w, agents)
 	}
 }
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
