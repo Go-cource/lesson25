@@ -32,8 +32,32 @@ func dbConnect() *sql.DB {
 	return db
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func selectAllAgents(db *sql.DB) []Agent {
+	rows, err := db.Query("SELECT * FROM agents")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+	agents := []Agent{}
+	for rows.Next() {
+		a := Agent{}
+		err := rows.Scan(&a.Id, &a.Name, &a.LastTimeOnline)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		agents = append(agents, a)
+	}
+	return agents
+}
 
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		db := dbConnect()
+		defer db.Close()
+		agents := selectAllAgents(db)
+
+	}
 }
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 
