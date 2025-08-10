@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"text/template"
@@ -23,6 +24,15 @@ type Task struct {
 	Text             string
 	Result           string
 	ResultTime       string
+}
+
+type AgentNameRequest struct {
+	AgentName string
+	/*
+		{
+			"AgentName": "John Smith"
+		}
+	*/
 }
 
 func dbConnect() *sql.DB {
@@ -52,6 +62,7 @@ func selectAllAgents(db *sql.DB) []Agent {
 	}
 	return agents
 }
+
 func selectAllTasks(db *sql.DB) []Task {
 	rows, err := db.Query("SELECT * FROM tasks")
 	if err != nil {
@@ -72,9 +83,9 @@ func selectAllTasks(db *sql.DB) []Task {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	db := dbConnect()
+	defer db.Close()
 	if r.Method == "GET" {
-		db := dbConnect()
-		defer db.Close()
 		agents := selectAllAgents(db)
 		tmpl, err := template.ParseFiles("templates/index.html")
 		if err != nil {
@@ -82,7 +93,33 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		tmpl.Execute(w, agents)
 	}
+	if r.Method == "POST" {
+		var Agent AgentNameRequest
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&Agent)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("Agent: %s online", Agent.AgentName)
+		agents := selectAllAgents(db)
+		for _, v := range agents {
+			if v.Name == Agent.AgentName {
+				_, err := db.Exec("UPDATE agents SET LastTimeOnline=? WHERE Name = ?", time.Now().Format("2006-Jan-02 15:04"), Agent.AgentName)
+				if err != nil {
+					fmt.Println(err)
+				}
+				return
+			}
+			_, err := db.Exec("INSERT INTO agents (Name, LastTimeOnline) VALUES (?,?)", Agent.AgentName, time.Now().Format("2006-Jan-02 15:04"))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+	}
 }
+
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		db := dbConnect()
