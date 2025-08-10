@@ -111,11 +111,11 @@ func createTaskHandler(w http.ResponseWriter, r *http.Request) {
 		newTask.AgentName = r.FormValue("TaskAgent")
 		newTask.Text = r.FormValue("TaskText")
 		newTask.TaskCreationTime = time.Now().Format("2006-Jan-02 15:04")
-		_, err := db.Exec("INSERT INTO tasks (AgentName, TaskCreationTime, Text, Result, ResultCreationTime) VALUES (?,?,?,?,?)", newTask.AgentName, newTask.TaskCreationTime, newTask.Text, " ", " ")
+		_, err := db.Exec("INSERT INTO tasks (AgentName, TaskCreationTme, Text, Result, ResultCreationTime) VALUES (?,?,?,?,?)", newTask.AgentName, newTask.TaskCreationTime, newTask.Text, " ", " ")
 		if err != nil {
 			fmt.Println(err)
 		}
-		http.Redirect(w, r, "/tasks", http.StatusAccepted)
+		http.Redirect(w, r, "/tasks", http.StatusFound)
 	}
 }
 
