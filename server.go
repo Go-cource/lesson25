@@ -95,7 +95,16 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func createTaskHandler(w http.ResponseWriter, r *http.Request) {
-
+	if r.Method == "GET" {
+		db := dbConnect()
+		defer db.Close()
+		agents := selectAllAgents(db)
+		tmpl, err := template.ParseFiles("templates/createTask.html")
+		if err != nil {
+			fmt.Println(err)
+		}
+		tmpl.Execute(w, agents)
+	}
 }
 
 func main() {

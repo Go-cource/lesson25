@@ -71,7 +71,7 @@
 
     <header class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Client-server Golang Project (Index)</a>
+            <a class="navbar-brand" href="#">Client-server Golang Project (Create Task)</a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -95,7 +95,7 @@
                 <label for="exampleFormControlSelect1">Choose Agent</label>
                 <select class="form-control" id="exampleFormControlSelect1" name="TaskAgent">
                     {{range .}}
-                    <option>{{.AgentName}}</option>
+                    <option>{{.Name}}</option>
                     {{end}}
                 </select>
             </div>
