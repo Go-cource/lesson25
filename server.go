@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"text/template"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -95,15 +96,26 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func createTaskHandler(w http.ResponseWriter, r *http.Request) {
+	db := dbConnect()
+	defer db.Close()
 	if r.Method == "GET" {
-		db := dbConnect()
-		defer db.Close()
 		agents := selectAllAgents(db)
 		tmpl, err := template.ParseFiles("templates/createTask.html")
 		if err != nil {
 			fmt.Println(err)
 		}
 		tmpl.Execute(w, agents)
+	}
+	if r.Method == "POST" {
+		var newTask Task
+		newTask.AgentName = r.FormValue("TaskAgent")
+		newTask.Text = r.FormValue("TaskText")
+		newTask.TaskCreationTime = time.Now().Format("2006-Jan-02 15:04")
+		_, err := db.Exec("INSERT INTO tasks (AgentName, TaskCreationTime, Text, Result, ResultCreationTime) VALUES (?,?,?,?,?)", newTask.AgentName, newTask.TaskCreationTime, newTask.Text, " ", " ")
+		if err != nil {
+			fmt.Println(err)
+		}
+		http.Redirect(w, r, "/tasks", http.StatusAccepted)
 	}
 }
 
