@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
+
+	_ "modernc.org/sqlite"
 )
 
 type Agent struct {
@@ -18,6 +21,15 @@ type Task struct {
 	Text             string
 	Result           string
 	ResultTime       string
+}
+
+func dbConnect() *sql.DB {
+	db, err := sql.Open("sqlite", "agents.db")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return db
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
